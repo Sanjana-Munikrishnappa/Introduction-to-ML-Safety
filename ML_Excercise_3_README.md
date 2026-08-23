@@ -1,0 +1,22 @@
+# ML Exercise 3 — Traffic Light, Pedestrian & Vehicle Detection with ODD Analysis
+This notebook trains three ResNet18-based classifiers on the CARLA dataset (traffic light, pedestrian, vehicle detection), evaluates them with standard classification metrics, then examines the gap between the conditions the models were trained on and the conditions they're tested on — a core ML safety concept called Operational Design Domain (ODD) coverage.
+## What it does
+The dataset is extracted from Google Drive and loaded into DataFrames with image file paths attached. A CARLADataset class feeds images (resized to 224×224, with augmentation for training) into three separately fine-tuned ResNet18 models, one per detection target. After training, each model is evaluated on the test set using accuracy, precision, recall, and F1-score. The notebook then documents which conditions (weather, lighting, map layout) were present in training versus which exist in the available test splits, and measures each model's recall across all of those splits to reveal how much performance drops outside the training conditions.
+## Requirements
+Google Colab, plus torch, torchvision (including pretrained ResNet18 weights), pandas, numpy, matplotlib, Pillow, and scikit-learn.
+## Dataset location
+/content/drive/MyDrive/carla_dataset/, containing zipped train/validation/test data plus any additional condition splits (e.g. test-fog, test-night, test-town-01) used for the ODD analysis.
+## How to run
+Open in Colab, mount Drive, and run all cells top to bottom. Training three ResNet18 models for 10 epochs each will take noticeably longer than the earlier, smaller custom CNNs used in other exercises, so a GPU runtime is recommended.
+## Output
+**Dataset setup:** the notebook prints the label CSV's column names and walks the training folder structure, confirming which files exist. Sample filenames from the image folder are printed alongside sample values from the labels table to confirm the two are aligned correctly.
+
+**Data exploration:** the image count for train, validation, and test splits is printed, followed by three bar charts (one per label — pedestrian, traffic light, vehicle) showing how many images have that object present versus absent. A grid of sample images is also displayed, with one row showing images without the target object and another row showing images with it, for visual comparison.
+
+**Training (once per model):** the device being used (GPU or CPU) is printed first. Then, for each of the three models, 10 epochs of training print live progress in the form Epoch  1/10  train=0.5432  val=0.4981, so both the training and validation loss can be tracked epoch by epoch. Once all three models finish, a confirmation line ("All 3 models trained!") is printed. Afterward, a single figure with three side-by-side plots shows the train vs. validation loss curve for each model, letting you check for overfitting (validation loss rising while training loss keeps falling).
+
+**Test-set evaluation:** a formatted table is printed with one row per label, showing accuracy, precision, recall, and F1-score for each of the three models. This is followed by a full classification_report printout for each model, breaking down precision/recall/F1 separately for the "Absent" and "Present" classes.
+
+**ODD documentation:** the notebook prints the total number of training frames and the frame ID range, along with any simulation configuration or log file it can find describing how the training data was generated. It then prints a hand-written table comparing which conditions (weather, lighting, map, camera angle, sensor noise) were present during training versus which are covered by the available test splits — this table itself is a key output, showing at a glance where the biggest blind spots are (e.g. no fog, no night driving, no alternate town in training).
+
+**Recall across conditions:** for every available test split (sunny/original test, fog, night, alternate town, etc.), the notebook prints one row showing each model's recall on that specific split, letting you directly compare, say, the pedestrian model's recall on a normal day versus at night. This is followed by a grouped bar chart plotting recall per label across every condition, with a dashed red line marking a 0.8 "safety threshold" recall — bars falling below that line visually flag exactly which model/condition combinations may be unsafe to deploy without further work.

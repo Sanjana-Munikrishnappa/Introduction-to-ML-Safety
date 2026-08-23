@@ -1,5 +1,5 @@
 # ML Safety – CARLA Perception Models
-This project was submitted by Your Name (Student ID: Optional) for the course Your Course Name at Your University Name.
+This project was submitted by Sanjana Munikrishnappa **Matriculation number:** 261187 for the **Course:** Data and Knowledge Engineering at **University:** Otto von Guericke University.
 
 This project trains and stress-tests CNN classifiers on CARLA driving-simulator images to detect traffic lights, pedestrians, and vehicles. Across the exercises, the same three models are trained, evaluated, attacked, calibrated, and explained to study their real-world safety behavior.
 
